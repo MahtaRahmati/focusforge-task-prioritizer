@@ -1,3 +1,7 @@
+## Preview
+
+![FocusForge Dashboard](screenshots/dashboard.png)
+
 # FocusForge — Smart Task Prioritizer
 
 FocusForge is a responsive, local-first productivity dashboard built with **HTML, CSS and vanilla JavaScript**.
