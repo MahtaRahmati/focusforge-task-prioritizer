@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FocusForge - داشبورد مدیریت کارها با اولویت‌بندی هوشمند و حالت تمرکز">
+  <meta name="theme-color" content="#7467f7">
+  <title>FocusForge | Smart Task Prioritizer</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__mark" aria-hidden="true">F</div>
+        <div>
+          <p class="brand__eyebrow">SMART PRODUCTIVITY DASHBOARD</p>
+          <h1>FocusForge</h1>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <div class="today-chip" id="today-label"></div>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="تغییر حالت رنگ">
+          <span aria-hidden="true">◐</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">برنامه‌ریزی با تصمیم‌های قابل توضیح</p>
+          <h2>همه کارها مهم نیستند؛ <span>مهم‌ترین کار بعدی</span> را پیدا کن.</h2>
+          <p class="hero__copy">
+            FocusForge برای هر کار بر اساس اولویت، موعد، وضعیت و زمان تخمینی یک امتیاز تمرکز می‌سازد
+            تا بدون ادعای AI، به‌صورت شفاف نشان دهد از کجا شروع کنی.
+          </p>
+        </div>
+
+        <div class="hero__score-card">
+          <span class="score-card__label">تمرکز امروز</span>
+          <strong id="hero-focus-score">0%</strong>
+          <div class="progress-track" aria-hidden="true">
+            <span id="hero-progress-bar"></span>
+          </div>
+          <small id="hero-focus-caption">هنوز کاری اضافه نشده است.</small>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="آمار کارها">
+        <article class="stat-card">
+          <span>باز</span>
+          <strong id="stat-open">0</strong>
+          <small>کار باقی‌مانده</small>
+        </article>
+        <article class="stat-card">
+          <span>امروز</span>
+          <strong id="stat-today">0</strong>
+          <small>دارای موعد امروز</small>
+        </article>
+        <article class="stat-card">
+          <span>عقب‌افتاده</span>
+          <strong id="stat-overdue">0</strong>
+          <small>نیازمند توجه</small>
+        </article>
+        <article class="stat-card">
+          <span>تکمیل</span>
+          <strong id="stat-completion">0%</strong>
+          <small>نرخ انجام کارها</small>
+        </article>
+      </section>
+
+      <section class="workspace-grid">
+        <article class="panel task-builder">
+          <div class="panel__header">
+            <div>
+              <p class="eyebrow">NEW TASK</p>
+              <h3>کار جدید</h3>
+            </div>
+            <span class="panel__badge">Local-first</span>
+          </div>
+
+          <form id="task-form" class="task-form">
+            <div class="field field--wide">
+              <label for="task-title">عنوان کار</label>
+              <input id="task-title" name="title" type="text" maxlength="120" placeholder="مثلاً: تکمیل صفحه داشبورد" required>
+            </div>
+
+            <div class="field">
+              <label for="task-category">دسته‌بندی</label>
+              <input id="task-category" name="category" type="text" maxlength="40" placeholder="دانشگاه، پروژه، شخصی">
+            </div>
+
+            <div class="field">
+              <label for="task-priority">اولویت</label>
+              <select id="task-priority" name="priority">
+                <option value="low">کم</option>
+                <option value="medium" selected>متوسط</option>
+                <option value="high">زیاد</option>
+                <option value="critical">بحرانی</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="task-due-date">موعد</label>
+              <input id="task-due-date" name="dueDate" type="date">
+            </div>
+
+            <div class="field">
+              <label for="task-estimate">زمان تخمینی</label>
+              <select id="task-estimate" name="estimate">
+                <option value="15">۱۵ دقیقه</option>
+                <option value="30" selected>۳۰ دقیقه</option>
+                <option value="60">۱ ساعت</option>
+                <option value="120">۲ ساعت</option>
+                <option value="240">۴+ ساعت</option>
+              </select>
+            </div>
+
+            <div class="field field--wide">
+              <label for="task-notes">یادداشت کوتاه</label>
+              <textarea id="task-notes" name="notes" rows="3" maxlength="280" placeholder="خروجی مورد انتظار یا نکته مهم..."></textarea>
+            </div>
+
+            <p id="form-message" class="form-message" aria-live="polite"></p>
+
+            <button class="primary-button field--wide" type="submit">
+              <span>+</span>
+              افزودن به FocusForge
+            </button>
+          </form>
+        </article>
+
+        <article class="panel focus-panel">
+          <div class="panel__header">
+            <div>
+              <p class="eyebrow">SMART FOCUS</p>
+              <h3>سه کار پیشنهادی بعدی</h3>
+            </div>
+            <span class="panel__badge panel__badge--accent">Explainable score</span>
+          </div>
+
+          <div id="focus-list" class="focus-list"></div>
+
+          <div class="score-explainer">
+            <strong>Focus Score چطور حساب می‌شود؟</strong>
+            <p>ترکیبی از اولویت، نزدیک بودن موعد، عقب‌افتادگی، وضعیت «در حال انجام» و زمان تخمینی کار.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel timer-panel" id="focus-mode">
+        <div class="timer-panel__task">
+          <p class="eyebrow">FOCUS MODE</p>
+          <h3 id="focus-task-name">یک کار را برای تمرکز انتخاب کن</h3>
+          <p id="focus-task-meta">از دکمه «تمرکز» روی هر کار استفاده کن.</p>
+        </div>
+
+        <div class="timer">
+          <strong id="timer-display">25:00</strong>
+          <div class="timer__actions">
+            <button id="timer-start" class="secondary-button" type="button">شروع</button>
+            <button id="timer-pause" class="ghost-button" type="button">توقف</button>
+            <button id="timer-reset" class="ghost-button" type="button">ریست</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel tasks-panel">
+        <div class="tasks-heading">
+          <div>
+            <p class="eyebrow">TASK LIBRARY</p>
+            <h3>همه کارها</h3>
+          </div>
+
+          <div class="data-actions">
+            <button id="export-button" class="ghost-button" type="button">خروجی JSON</button>
+            <label class="ghost-button file-button">
+              ورود JSON
+              <input id="import-input" type="file" accept="application/json">
+            </label>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="search-input" type="search" placeholder="جستجو در عنوان، دسته یا یادداشت...">
+          </label>
+
+          <div class="filter-group" aria-label="فیلتر کارها">
+            <button class="filter-button active" type="button" data-filter="all">همه</button>
+            <button class="filter-button" type="button" data-filter="open">باز</button>
+            <button class="filter-button" type="button" data-filter="today">امروز</button>
+            <button class="filter-button" type="button" data-filter="overdue">عقب‌افتاده</button>
+            <button class="filter-button" type="button" data-filter="done">انجام‌شده</button>
+          </div>
+
+          <label class="sort-box">
+            <span>مرتب‌سازی</span>
+            <select id="sort-select">
+              <option value="focus">Focus Score</option>
+              <option value="due">موعد</option>
+              <option value="created">جدیدترین</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="task-list" class="task-list"></div>
+
+        <div class="tasks-footer">
+          <span id="result-count">0 کار</span>
+          <button id="clear-completed" class="danger-link" type="button">حذف کارهای انجام‌شده</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="edit-dialog" class="edit-dialog">
+    <form id="edit-form" method="dialog">
+      <div class="dialog__header">
+        <div>
+          <p class="eyebrow">EDIT TASK</p>
+          <h3>ویرایش کار</h3>
+        </div>
+        <button id="close-dialog" class="icon-button" type="button" aria-label="بستن">×</button>
+      </div>
+
+      <input id="edit-id" type="hidden">
+
+      <div class="field">
+        <label for="edit-title">عنوان</label>
+        <input id="edit-title" type="text" maxlength="120" required>
+      </div>
+
+      <div class="dialog-grid">
+        <div class="field">
+          <label for="edit-category">دسته‌بندی</label>
+          <input id="edit-category" type="text" maxlength="40">
+        </div>
+
+        <div class="field">
+          <label for="edit-priority">اولویت</label>
+          <select id="edit-priority">
+            <option value="low">کم</option>
+            <option value="medium">متوسط</option>
+            <option value="high">زیاد</option>
+            <option value="critical">بحرانی</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="edit-due-date">موعد</label>
+          <input id="edit-due-date" type="date">
+        </div>
+
+        <div class="field">
+          <label for="edit-estimate">زمان تخمینی</label>
+          <select id="edit-estimate">
+            <option value="15">۱۵ دقیقه</option>
+            <option value="30">۳۰ دقیقه</option>
+            <option value="60">۱ ساعت</option>
+            <option value="120">۲ ساعت</option>
+            <option value="240">۴+ ساعت</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="edit-notes">یادداشت</label>
+        <textarea id="edit-notes" rows="4" maxlength="280"></textarea>
+      </div>
+
+      <div class="dialog__actions">
+        <button class="primary-button" type="submit">ذخیره تغییرات</button>
+        <button id="cancel-edit" class="ghost-button" type="button">انصراف</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="./script.js"></script>
+</body>
+</html>
